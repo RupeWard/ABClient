@@ -48,6 +48,9 @@ public class AppManager : RJWard.Core.Singleton.SingletonApplicationLifetime< Ap
 		}
 	}
 
-
+	public static string saveBundleFilename( string abName )
+	{
+		return AppManager.persistentBundlePath + abName;
+	}
 
 }
