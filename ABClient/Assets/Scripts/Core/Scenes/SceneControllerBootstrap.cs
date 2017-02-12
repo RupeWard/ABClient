@@ -152,6 +152,12 @@ public class SceneControllerBootstrap : SceneController_Base
 				for (int i = 0; i < objects.Length; i++)
 				{
 					sb.Append( "\n " + objects[i].name + " - " + objects[i].GetType( ) );
+
+					GameObject go = objects[i] as GameObject;
+					if (go != null)
+					{
+						AppManager.Instance.AddAssetBundleGameObject( go );
+					}
 				}
 
 				Debug.Log( sb.ToString( ) );

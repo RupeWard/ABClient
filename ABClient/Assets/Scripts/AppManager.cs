@@ -4,6 +4,22 @@ using System.Collections.Generic;
 
 public class AppManager : RJWard.Core.Singleton.SingletonApplicationLifetime< AppManager >
 {
+	public List<GameObject> assetBundleGameObjects = new List<GameObject>( );
+	public bool AddAssetBundleGameObject(GameObject newGo)
+	{
+		foreach( GameObject go in assetBundleGameObjects)
+		{
+			if (go.name == newGo.name)
+			{
+				Debug.LogError( "AppManager is alreadty managing an assetbundle go called " + newGo.name );
+				return false;
+			}
+		}
+		assetBundleGameObjects.Add( newGo );
+		Debug.Log( "AppManager is now managing an assetbundle go called " + newGo.name );
+		return true;
+	}
+
 	static public List<string> abNames = new List<string>( )
 	{
 		"stage01"
@@ -54,3 +70,4 @@ public class AppManager : RJWard.Core.Singleton.SingletonApplicationLifetime< Ap
 	}
 
 }
+

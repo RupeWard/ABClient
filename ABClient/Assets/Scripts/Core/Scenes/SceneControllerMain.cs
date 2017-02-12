@@ -18,6 +18,13 @@ public partial class SceneControllerMain: SceneController_Base
 
 	protected override void PostStart( )
 	{
+		Debug.Log( "SceneMain: start" );
+
+		foreach (GameObject go in AppManager.Instance.assetBundleGameObjects)
+		{
+			GameObject newGo = Instantiate<GameObject>( go );
+			Debug.Log( "Instantiated " + go.name + " as " + newGo.transform.GetPathInHierarchy( ) );
+		}
 	}
 
 	#endregion SceneController_Base
