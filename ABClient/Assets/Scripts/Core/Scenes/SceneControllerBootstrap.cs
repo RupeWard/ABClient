@@ -108,12 +108,12 @@ public class SceneControllerBootstrap : SceneController_Base
 	{
 		foreach (string abName in AppManager.abNames)
 		{
-			yield return StartCoroutine( LoadBundle( abName ) );
+			yield return StartCoroutine( LoadBundleCR( abName ) );
 		}
 		MoveOn( );
 	}
 
-	IEnumerator LoadBundle(string abName)
+	IEnumerator LoadBundleCR(string abName)
 	{
 		Debug.Log( "Start Loading bundle '" + abName + "'" );
 
@@ -146,6 +146,8 @@ public class SceneControllerBootstrap : SceneController_Base
 				AssetBundleRequest request = bundle.LoadAllAssetsAsync< Object>( );
 				yield return request;
 
+				ABStore abStore = null;
+
 				Object[] objects = request.allAssets;
 				sb.Length = 0;
 				sb.Append( "Loaded AB from "+saveBundleFilename+" with " + objects.Length + " objects:" );
@@ -158,12 +160,42 @@ public class SceneControllerBootstrap : SceneController_Base
 					{
 						AppManager.Instance.AddAssetBundleGameObject( go );
 					}
+
+
+					if (abStore == null)
+					{
+						abStore = go.GetComponent<ABStore>( );
+						if (abStore != null)
+						{
+							sb.Append( "\n --- this is an ABStore with " + abStore.abs.Length + " ABS" );
+						}
+						else
+						{
+							sb.Append( "\n --- this is not an ABStore " );
+						}
+					}
+					else
+					{
+						if (go.GetComponent<ABStore>( ))
+						{
+							Debug.LogError( "Found a second ABStore" );
+							sb.Append( "\n !!! this shoulnd;t be a second ABStore" );
+						}
+					}
 				}
 
 				Debug.Log( sb.ToString( ) );
 
 				bundle.Unload( false );
 
+				if (abStore != null)
+				{
+					yield return StartCoroutine( ProcessABStoreCR( abStore ));
+				}
+				else
+				{
+					Debug.Log( "No ABStore to process" );
+				}
 			}
 		}
 		www.Dispose( );
@@ -171,5 +203,26 @@ public class SceneControllerBootstrap : SceneController_Base
 		yield return null;
 	}
 	#endregion bundle loading
+
+	#region ABStore
+
+	IEnumerator ProcessABStoreCR( ABStore abs )
+	{
+		sb.Length = 0;
+		sb.Append( "Processing ABStore " + abs.gameObject.name + " with " + abs.abs.Length + " abs" );
+
+		foreach (TextAsset ta in abs.abs)
+		{
+			byte[] bytes = ta.bytes;
+			sb.Append( "\n -- text asset " + ta.name + " has " + bytes.Length + " bytes" );
+
+			yield return StartCoroutine( SaveBundleCR( ta.name, bytes ) );
+
+			yield return StartCoroutine( LoadBundleCR( ta.name ) );	
+		}
+		Debug.Log( sb.ToString( ) );
+		yield return null;
+	}
+	#endregion
 
 }
